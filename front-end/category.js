@@ -14,7 +14,8 @@ const API_URL = 'http://localhost:3000';
                         html += `<tr id=${data[i]._id}>
                                 <td>${i + 1}</td>
                                 <td>${data[i].name}</td>
-                                <td>${data[i].description}</td>
+                                <td>${data[i].description}</td>      
+                                <td><img src="${data[i].image}" id='img'></td>
                                 <td>
                                 <button type="button" onclick="showUpdateForm('${data[i]._id}')" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
                                 Update
@@ -39,9 +40,32 @@ const API_URL = 'http://localhost:3000';
         function createCategory() {
             let name = $('#name').val();
             let description = $('#description').val();
+            const firebaseConfig = {
+                apiKey: "AIzaSyCyeFbKhQleEyCE1PYyTVUOLwnKrTS5gK0",
+                authDomain: "bao2k-md4.firebaseapp.com",
+                projectId: "bao2k-md4",
+                storageBucket: "bao2k-md4.appspot.com",
+                messagingSenderId: "335141486798",
+                appId: "1:335141486798:web:8b19120d958aecdf27909f",
+                measurementId: "G-MKDPJN40D1"
+              };
+               // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        console.log(firebase);
+        const ref = firebase.storage().ref();
+        const file = document.querySelector("#image").files[0];
+        const nameImage = +new Date() + "-" + file.name;
+        const metadata = {
+          contentType: file.type
+        };
+        const task = ref.child(nameImage).put(file, metadata);
+      task
+        .then(snapshot => snapshot.ref.getDownloadURL())
+        .then(url => {
             let category = {
-                name: name,
-                description: description
+                name : name,
+                description: description,
+                image: url
             }
             $.ajax({
                 type: 'POST',
@@ -57,6 +81,7 @@ const API_URL = 'http://localhost:3000';
                                 <td>${totalCategory}</td>
                                 <td>${data.name}</td>
                                 <td>${data.description}</td>
+                                <td> <img src="${data.image}"></td>
                                 <td>
                                 <button type="button" onclick="showUpdateForm('${data._id}')" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
                                 Update
@@ -68,6 +93,8 @@ const API_URL = 'http://localhost:3000';
                     resetFrom()
                 }
             })
+        })
+          
         }
         function showConfirmDelete(id) {
             Swal.fire({
